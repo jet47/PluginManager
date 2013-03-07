@@ -14,7 +14,7 @@ void cv::PluginSet::add(const Poco::SharedPtr<cv::Plugin>& plugin)
     plugins_.push_back(plugin);
 }
 
-Poco::SharedPtr<cv::Plugin> cv::PluginSet::getPlugin() const
+Poco::SharedPtr<cv::Plugin> cv::PluginSet::getPlugin()
 {
     if (plugins_.empty())
     {
@@ -23,7 +23,23 @@ Poco::SharedPtr<cv::Plugin> cv::PluginSet::getPlugin() const
         throw std::runtime_error(msg.str());
     }
 
-    return plugins_[0];
+    for (size_t i = 0; i < plugins_.size(); ++i)
+    {
+        if (plugins_[i]->isLoaded())
+            return plugins_[i];
+    }
+
+    Poco::SharedPtr<cv::Plugin> plugin;
+    for (size_t i = 0; i < plugins_.size(); ++i)
+    {
+        if (plugins_[i]->load())
+        {
+            plugin = plugins_[i];
+            break;
+        }
+    }
+
+    return plugin;
 }
 
 cv::PluginManager& cv::PluginManager::instance()
@@ -42,6 +58,12 @@ cv::PluginManager::~PluginManager()
 {
 }
 
+cv::PluginSet& cv::PluginManager::getPluginSet(const std::string& interface)
+{
+    plugins_[interface].interface_ = interface;
+    return plugins_[interface];
+}
+
 void cv::PluginManager::reloadPluginsInfo()
 {
     plugins_.clear();
@@ -52,11 +74,6 @@ void cv::PluginManager::reloadPluginsInfo()
 
     if (pluginBaseDir.exists() && pluginBaseDir.isDirectory())
         processFolder(pluginBaseDir);
-}
-
-cv::PluginSet& cv::PluginManager::getPluginSet(const std::string& interface)
-{
-    return plugins_[interface];
 }
 
 namespace

@@ -2,10 +2,12 @@
 
 int main()
 {
-    cv::GpuMat mat;
+    cv::GpuMat src1, src2, dst;
 
-    mat.create(100, 100, 3);
-    mat.release();
+    src1.create(100, 100, 3);
+    src2.create(100, 100, 3);
+
+    cv::add(src1, src2, dst);
 
     return 0;
 }

@@ -25,6 +25,22 @@ cv::PluginInfo ocvGetPluginInfo()
     return info;
 }
 
+extern "C" CUDA_MAIN_EXPORT bool ocvLoadPlugin();
+
+bool ocvLoadPlugin()
+{
+    int count;
+    cudaError_t error = cudaGetDeviceCount( &count );
+
+    if (error == cudaErrorInsufficientDriver)
+        return false;
+
+    if (error == cudaErrorNoDevice)
+        return false;
+
+    return count > 0;
+}
+
 ///////////////////////////////////////////////////////////
 // gpu.main
 
@@ -32,7 +48,7 @@ extern "C" CUDA_MAIN_EXPORT Poco::SharedPtr<cv::GpuModuleManager> createGpuModul
 
 namespace
 {
-    class CUDA_MAIN_EXPORT CudaModuleManager : public cv::GpuModuleManager
+    class CudaModuleManager : public cv::GpuModuleManager
     {
     public:
         Poco::SharedPtr<cv::Plugin> getPlugin(const std::string& name);

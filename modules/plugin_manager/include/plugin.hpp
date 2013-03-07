@@ -26,7 +26,7 @@ namespace cv
         Plugin(const PluginInfo& info, const std::string& libPath);
 
         bool isLoaded() const;
-        void load();
+        bool load();
         void unload();
 
         void* getSymbol(const std::string& name);

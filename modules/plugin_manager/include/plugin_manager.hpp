@@ -23,7 +23,7 @@ namespace cv
     public:
         void add(const Poco::SharedPtr<cv::Plugin>& plugin);
 
-        Poco::SharedPtr<cv::Plugin> getPlugin() const;
+        Poco::SharedPtr<cv::Plugin> getPlugin();
 
     private:
         std::string interface_;
@@ -37,14 +37,13 @@ namespace cv
     public:
         static PluginManager& instance();
 
-        void reloadPluginsInfo();
-
         cv::PluginSet& getPluginSet(const std::string& interface);
 
     private:
         PluginManager();
         ~PluginManager();
 
+        void reloadPluginsInfo();
         void processFolder(const Poco::File& folder);
 
         std::map<std::string, cv::PluginSet> plugins_;
