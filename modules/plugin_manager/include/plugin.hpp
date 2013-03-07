@@ -4,34 +4,26 @@
 #define __OPENCV_PLUGIN_HPP__
 
 #include <string>
-#include <vector>
 
 #include <Poco/SharedLibrary.h>
 
+#include "plugin_info.hpp"
 #include "opencv_export.h"
 
 namespace cv
 {
-    struct OPENCV_EXPORT PluginInfo
-    {
-        std::string name;
-        std::string vendor;
-        std::string version;
-        std::vector<std::string> interfaces;
-    };
-
     class OPENCV_EXPORT Plugin
     {
     public:
         Plugin(const PluginInfo& info, const std::string& libPath);
+
+        const PluginInfo& info() const { return info_; }
 
         bool isLoaded() const;
         bool load();
         void unload();
 
         void* getSymbol(const std::string& name);
-
-        const PluginInfo& info() const { return info_; }
 
     private:
         Plugin(const Plugin&);

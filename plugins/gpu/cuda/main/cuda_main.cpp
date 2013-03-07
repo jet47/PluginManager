@@ -1,31 +1,20 @@
+#include <iostream>
+
 #include <cuda_runtime.h>
 
-#include "plugin.hpp"
+#include "plugin_library.hpp"
 #include "plugin_manager.hpp"
 #include "gpu_module.hpp"
-
-#include "cuda_main_export.h"
 
 ///////////////////////////////////////////////////////////
 // Plugin Info
 
-extern "C" CUDA_MAIN_EXPORT cv::PluginInfo ocvGetPluginInfo();
-
-cv::PluginInfo ocvGetPluginInfo()
-{
-    cv::PluginInfo info;
-
-    info.name = "CUDA Main";
-    info.vendor = "Itseez";
-    info.version = "2.4.4";
-
-    info.interfaces.push_back("gpu.main");
-    info.interfaces.push_back("gpu.cuda.main");
-
-    return info;
-}
-
-extern "C" CUDA_MAIN_EXPORT bool ocvLoadPlugin();
+OPENCV_BEGIN_PLUGIN_DECLARATION("CUDA Main")
+    OPENCV_PLUGIN_VENDOR("Itseez")
+    OPENCV_PLUGIN_VERSION("2.4.4")
+    OPENCV_PLUGIN_INTERFACE("gpu.main")
+    OPENCV_PLUGIN_INTERFACE("gpu.cuda.main")
+OPENCV_END_PLUGIN_DECLARATION()
 
 bool ocvLoadPlugin()
 {
@@ -33,18 +22,24 @@ bool ocvLoadPlugin()
     cudaError_t error = cudaGetDeviceCount( &count );
 
     if (error == cudaErrorInsufficientDriver)
+    {
+        std::cerr << "CUDA : Insufficient Driver" << std::endl;
         return false;
+    }
 
     if (error == cudaErrorNoDevice)
+    {
+        std::cerr << "CUDA : No Device" << std::endl;
         return false;
+    }
 
-    return count > 0;
+    return (count > 0);
 }
 
 ///////////////////////////////////////////////////////////
 // gpu.main
 
-extern "C" CUDA_MAIN_EXPORT Poco::SharedPtr<cv::GpuModuleManager> createGpuModuleManager();
+extern "C" OPENCV_PLUGIN_API Poco::SharedPtr<cv::GpuModuleManager> createGpuModuleManager();
 
 namespace
 {
@@ -74,8 +69,8 @@ Poco::SharedPtr<cv::GpuModuleManager> createGpuModuleManager()
 ///////////////////////////////////////////////////////////
 // gpu.cuda.main
 
-extern "C" CUDA_MAIN_EXPORT void* gpuMalloc2D(size_t height, size_t width, size_t& step);
-extern "C" CUDA_MAIN_EXPORT void gpuFree(void* ptr);
+extern "C" OPENCV_PLUGIN_API void* gpuMalloc2D(size_t height, size_t width, size_t& step);
+extern "C" OPENCV_PLUGIN_API void gpuFree(void* ptr);
 
 void* gpuMalloc2D(size_t height, size_t width, size_t& step)
 {

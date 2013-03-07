@@ -11,11 +11,7 @@ file(GLOB header_files "*.h" "*.hpp")
 file(GLOB source_files "*.c" "*.cpp")
 set(all_build_files ${header_files} ${source_files})
 
-add_compiler_export_flags()
-
 add_library(${target} SHARED ${all_build_files})
-
-generate_export_header(${target})
 
 add_dependencies(${target} opencv_plugin_manager opencv_core)
 

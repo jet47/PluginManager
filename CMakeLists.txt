@@ -16,10 +16,11 @@ set(include_install_dir "include")
 
 include(GenerateExportHeader)
 
-find_package(POCO REQUIRED)
+find_package(POCO REQUIRED COMPONENTS XML)
 include_directories(${POCO_INCLUDE_DIRS})
 
 add_subdirectory(modules)
+add_subdirectory(utility)
 add_subdirectory(sample)
 
 if(BUILD_PLUGINS)

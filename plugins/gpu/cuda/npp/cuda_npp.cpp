@@ -2,33 +2,22 @@
 
 #include <npp.h>
 
-#include "plugin.hpp"
+#include "plugin_library.hpp"
 #include "core.hpp"
-
-#include "cuda_npp_export.h"
 
 ///////////////////////////////////////////////////////////
 // Plugin Info
 
-extern "C" CUDA_NPP_EXPORT cv::PluginInfo ocvGetPluginInfo();
-
-cv::PluginInfo ocvGetPluginInfo()
-{
-    cv::PluginInfo info;
-
-    info.name = "CUDA NPP";
-    info.vendor = "Itseez";
-    info.version = "2.4.4";
-
-    info.interfaces.push_back("gpu.cuda.arithm");
-
-    return info;
-}
+OPENCV_BEGIN_PLUGIN_DECLARATION("CUDA NPP")
+    OPENCV_PLUGIN_VENDOR("Itseez")
+    OPENCV_PLUGIN_VERSION("2.4.4")
+    OPENCV_PLUGIN_INTERFACE("gpu.cuda.arithm")
+OPENCV_END_PLUGIN_DECLARATION()
 
 ///////////////////////////////////////////////////////////
 // gpu.cuda.arithm
 
-extern "C" CUDA_NPP_EXPORT void gpuAddMat(const cv::GpuMat& src1, const cv::GpuMat& src2, cv::GpuMat& dst);
+extern "C" OPENCV_PLUGIN_API void gpuAddMat(const cv::GpuMat& src1, const cv::GpuMat& src2, cv::GpuMat& dst);
 
 void gpuAddMat(const cv::GpuMat& src1, const cv::GpuMat& src2, cv::GpuMat& dst)
 {

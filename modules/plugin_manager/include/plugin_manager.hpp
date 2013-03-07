@@ -12,25 +12,12 @@
 #include <Poco/File.h>
 
 #include "plugin.hpp"
+#include "plugin_set.hpp"
 #include "opencv_export.h"
 
 namespace cv
 {
     class PluginManager;
-
-    class OPENCV_EXPORT PluginSet
-    {
-    public:
-        void add(const Poco::SharedPtr<cv::Plugin>& plugin);
-
-        Poco::SharedPtr<cv::Plugin> getPlugin();
-
-    private:
-        std::string interface_;
-        std::vector<Poco::SharedPtr<cv::Plugin> > plugins_;
-
-        friend class cv::PluginManager;
-    };
 
     class OPENCV_EXPORT PluginManager
     {
