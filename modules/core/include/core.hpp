@@ -5,31 +5,43 @@
 
 #include <cstddef>
 
+#include "utility.hpp"
 #include "opencv_export.h"
 
 namespace cv
 {
+    class OPENCV_EXPORT Algorithm : public cv::Object
+    {
+    };
+
+    enum Depth
+    {
+        d8U,
+        d32F
+    };
+
     class OPENCV_EXPORT GpuMat
     {
     public:
         GpuMat();
         ~GpuMat();
 
-        void create(size_t rows, size_t cols, int channels);
+        void create(int rows, int cols, cv::Depth depth, int channels);
         void release();
 
-        size_t rows_;
-        size_t cols_;
-        int channels_;
-        void* data_;
-        size_t step_;
+        int rows;
+        int cols;
+        cv::Depth depth;
+        int channels;
+        void* data;
+        size_t step;
 
     private:
-        GpuMat(const GpuMat&);
-        GpuMat& operator =(const GpuMat&);
+        GpuMat(const cv::GpuMat& other);
+        cv::GpuMat& operator =(const cv::GpuMat& other);
     };
 
-    OPENCV_EXPORT void add(const GpuMat& src1, const GpuMat& src2, GpuMat& dst);
+    OPENCV_EXPORT void add(const cv::GpuMat& src1, const cv::GpuMat& src2, cv::GpuMat& dst);
 }
 
 #endif // __OPENCV_CORE_HPP__

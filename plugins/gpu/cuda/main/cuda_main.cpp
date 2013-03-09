@@ -1,9 +1,10 @@
+#include <cassert>
 #include <iostream>
 
 #include <cuda_runtime.h>
 
-#include "plugin_library.hpp"
 #include "plugin_manager.hpp"
+#include "core.hpp"
 #include "gpu_module.hpp"
 
 ///////////////////////////////////////////////////////////
@@ -12,8 +13,8 @@
 OPENCV_BEGIN_PLUGIN_DECLARATION("CUDA Main")
     OPENCV_PLUGIN_VENDOR("Itseez")
     OPENCV_PLUGIN_VERSION("2.4.4")
-    OPENCV_PLUGIN_INTERFACE("gpu.main")
-    OPENCV_PLUGIN_INTERFACE("gpu.cuda.main")
+    OPENCV_PLUGIN_INTERFACE("gpu")
+    OPENCV_PLUGIN_INTERFACE("gpu.cuda.basic")
 OPENCV_END_PLUGIN_DECLARATION()
 
 bool ocvLoadPlugin()
@@ -37,49 +38,62 @@ bool ocvLoadPlugin()
 }
 
 ///////////////////////////////////////////////////////////
-// gpu.main
-
-extern "C" OPENCV_PLUGIN_API Poco::SharedPtr<cv::GpuModuleManager> createGpuModuleManager();
+// gpu
 
 namespace
 {
-    class CudaModuleManager : public cv::GpuModuleManager
+    class CudaModuleManager : public cv::PluginManagerBase
     {
-    public:
-        Poco::SharedPtr<cv::Plugin> getPlugin(const std::string& name);
+    protected:
+        cv::Ptr<cv::Object> createImpl(const std::string& interface, const cv::ParameterMap& params);
     };
 
-    Poco::SharedPtr<cv::Plugin> CudaModuleManager::getPlugin(const std::string& name)
+    cv::Ptr<cv::Object> CudaModuleManager::createImpl(const std::string& interface, const cv::ParameterMap& params)
     {
-        const std::string fullName = "gpu.cuda." + name;
+        const std::string fullName = "gpu.cuda." + interface;
 
-        cv::PluginManager& manager = cv::PluginManager::instance();
+        cv::PluginManager& manager = cv::thePluginManager();
 
-        cv::PluginSet& set = manager.getPluginSet(fullName);
-
-        return set.getPlugin();
+        return manager.create<cv::Object>(fullName, params);
     }
 }
 
-Poco::SharedPtr<cv::GpuModuleManager> createGpuModuleManager()
+///////////////////////////////////////////////////////////
+// gpu.cuda.basic
+
+namespace
 {
-    return new CudaModuleManager;
+    class CudaBasic : public cv::GpuBasic
+    {
+    public:
+        void* malloc2D(size_t height, size_t width, size_t& step);
+        void free(void* ptr);
+    };
+
+    void* CudaBasic::malloc2D(size_t height, size_t width, size_t& step)
+    {
+        void* ptr;
+        cudaMallocPitch(&ptr, &step, width, height);
+        return ptr;
+    }
+
+    void CudaBasic::free(void* ptr)
+    {
+        cudaFree(ptr);
+    }
 }
 
 ///////////////////////////////////////////////////////////
-// gpu.cuda.main
+// ocvPluginCreate
 
-extern "C" OPENCV_PLUGIN_API void* gpuMalloc2D(size_t height, size_t width, size_t& step);
-extern "C" OPENCV_PLUGIN_API void gpuFree(void* ptr);
+extern "C" OPENCV_PLUGIN_API cv::Ptr<cv::Object> ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params);
 
-void* gpuMalloc2D(size_t height, size_t width, size_t& step)
+cv::Ptr<cv::Object> ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params)
 {
-    void* ptr;
-    cudaMallocPitch(&ptr, &step, width, height);
-    return ptr;
-}
+    assert(interface == "gpu" || interface == "gpu.cuda.basic");
 
-void gpuFree(void* ptr)
-{
-    cudaFree(ptr);
+    if (interface == "gpu")
+        return new CudaModuleManager;
+
+    return new CudaBasic;
 }

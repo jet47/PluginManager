@@ -7,6 +7,16 @@ cv::Plugin::Plugin(const cv::PluginInfo& info, const std::string& libPath) :
 {
 }
 
+cv::PluginInfo cv::Plugin::info() const
+{
+    return info_;
+}
+
+std::string cv::Plugin::libPath() const
+{
+    return libPath_;
+}
+
 bool cv::Plugin::isLoaded() const
 {
     return lib_.isLoaded();
@@ -29,6 +39,7 @@ bool cv::Plugin::load()
     else
     {
         const ocvLoadPlugin_t ocvLoadPlugin = (ocvLoadPlugin_t) lib_.getSymbol("ocvLoadPlugin");
+
         return ocvLoadPlugin();
     }
 }
@@ -39,7 +50,12 @@ void cv::Plugin::unload()
         lib_.unload();
 }
 
-void* cv::Plugin::getSymbol(const std::string& name)
+namespace
+{
+    typedef cv::Ptr<cv::Object> (*ocvPluginCreate_t)(const std::string& interface, const cv::ParameterMap& params);
+}
+
+cv::Ptr<cv::Object> cv::Plugin::create(const std::string& interface, const cv::ParameterMap& params)
 {
     if (!load())
     {
@@ -48,5 +64,14 @@ void* cv::Plugin::getSymbol(const std::string& name)
         throw std::runtime_error(msg.str());
     }
 
-    return lib_.getSymbol(name);
+    if (!lib_.hasSymbol("ocvPluginCreate"))
+    {
+        std::ostringstream msg;
+        msg << "Incorrect plugin - " << info_.name;
+        throw std::runtime_error(msg.str());
+    }
+
+    const ocvPluginCreate_t ocvPluginCreate = (ocvPluginCreate_t) lib_.getSymbol("ocvPluginCreate");
+
+    return ocvPluginCreate(interface, params);
 }

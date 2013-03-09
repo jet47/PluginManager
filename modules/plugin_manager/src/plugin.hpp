@@ -7,23 +7,24 @@
 
 #include <Poco/SharedLibrary.h>
 
-#include "plugin_info.hpp"
+#include "plugin_manager.hpp"
 #include "opencv_export.h"
 
 namespace cv
 {
-    class OPENCV_EXPORT Plugin
+    class OPENCV_EXPORT Plugin : public cv::PluginBase
     {
     public:
         Plugin(const PluginInfo& info, const std::string& libPath);
 
-        const PluginInfo& info() const { return info_; }
-
+        cv::PluginInfo info() const;
+        std::string libPath() const;
         bool isLoaded() const;
+
         bool load();
         void unload();
 
-        void* getSymbol(const std::string& name);
+        cv::Ptr<cv::Object> create(const std::string& interface, const cv::ParameterMap& params);
 
     private:
         Plugin(const Plugin&);
