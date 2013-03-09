@@ -475,6 +475,9 @@ namespace
 
             bool wasLoaded = plugin->isLoaded();
 
+            if (!wasLoaded && !plugin->load())
+                continue;
+
             cv::Ptr<cv::Object> obj = plugin->create(interface, params);
             if (!obj.isNull())
                 return obj;
