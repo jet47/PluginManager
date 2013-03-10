@@ -60,6 +60,8 @@ namespace cv
         virtual void loadPluginCache(const std::string& baseDir = "", const std::string& manifestFile = "") = 0;
 
         virtual void getPluginList(std::vector<cv::Ptr<cv::PluginBase> >& plugins) = 0;
+
+        virtual void setPriority(const std::string& interface, const std::string& pluginName, int priority) = 0;
     };
 
     OPENCV_EXPORT cv::PluginManager& thePluginManager();

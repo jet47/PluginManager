@@ -6,6 +6,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+#include <utility>
 
 #include <Poco/SingletonHolder.h>
 #include <Poco/Environment.h>
@@ -37,12 +38,15 @@ namespace
 
         void getPluginList(std::vector<cv::Ptr<cv::PluginBase> >& plugins);
 
+        void setPriority(const std::string& interface, const std::string& pluginName, int priority);
+
     protected:
         cv::Ptr<cv::Object> createImpl(const std::string& interface, const cv::ParameterMap& params);
 
     private:
         std::vector<cv::Ptr<cv::Plugin> > allPlugins_;
         std::map<std::string, std::vector<cv::Ptr<cv::Plugin> > > pluginsMap_;
+        std::map<std::string, std::vector<std::pair<std::string, int> > > allPriorityMap_;
     };
 
     Poco::File parseBaseDir(const std::string& baseDir)
@@ -445,11 +449,29 @@ namespace
         std::copy(allPlugins_.begin(), allPlugins_.end(), std::back_inserter(plugins));
     }
 
-    struct PluginLoaded
+    void PluginManagerImpl::setPriority(const std::string& interface, const std::string& pluginName, int priority)
     {
+        std::vector<std::pair<std::string, int> >& vec = allPriorityMap_[interface];
+
+        for (size_t i = 0; i < vec.size(); ++i)
+        {
+            if (vec[i].first == pluginName)
+            {
+                vec[i].second = priority;
+                return;
+            }
+        }
+
+        vec.push_back(std::make_pair(pluginName, priority));
+    }
+
+    struct PluginCompare
+    {
+        mutable std::map<std::string, int> priorityMap;
+
         bool operator ()(const cv::Ptr<cv::Plugin>& pluginA, const cv::Ptr<cv::Plugin>& pluginB) const
         {
-            return pluginA->isLoaded() && !pluginB->isLoaded();
+            return priorityMap[pluginA->info().name] > priorityMap[pluginB->info().name];
         }
     };
 
@@ -467,11 +489,27 @@ namespace
             throw std::runtime_error(msg.str());
         }
 
-        std::sort(plugins.begin(), plugins.end(), PluginLoaded());
+        PluginCompare pluginCmp;
+        for (size_t i = 0; i < plugins.size(); ++i)
+        {
+            const cv::Ptr<cv::Plugin>& plugin = plugins[i];
+            pluginCmp.priorityMap[plugin->info().name] = plugin->isLoaded();
+        }
+        std::vector<std::pair<std::string, int> >& userPriority = allPriorityMap_[interface];
+        for (size_t i = 0; i < userPriority.size(); ++i)
+        {
+            const std::pair<std::string, int>& pair = userPriority[i];
+            pluginCmp.priorityMap[pair.first] = pair.second;
+        }
+
+        std::sort(plugins.begin(), plugins.end(), pluginCmp);
 
         for (size_t i = 0; i < plugins.size(); ++i)
         {
-            cv::Ptr<cv::Plugin> plugin = plugins[i];
+            cv::Ptr<cv::Plugin>& plugin = plugins[i];
+
+            if (pluginCmp.priorityMap[plugin->info().name] < 0)
+                break;
 
             bool wasLoaded = plugin->isLoaded();
 
