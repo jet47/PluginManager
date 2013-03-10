@@ -49,7 +49,7 @@ namespace
                           .description("update plugin cache")
                           .required(false)
                           .repeatable(false)
-                          .argument("directory", false)
+                          .argument("plugin directory", false)
                           .callback(Poco::Util::OptionCallback<PluginManagerApp>(this, &PluginManagerApp::handleUpdate)));
 
         options.addOption(Poco::Util::Option()
@@ -57,7 +57,7 @@ namespace
                           .description("print info about all plugins")
                           .required(false)
                           .repeatable(false)
-                          .argument("directory", false)
+                          .argument("manifest file", false)
                           .callback(Poco::Util::OptionCallback<PluginManagerApp>(this, &PluginManagerApp::handleInfo)));
     }
 

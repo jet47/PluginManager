@@ -33,8 +33,8 @@ namespace
     class PluginManagerImpl : public cv::PluginManager
     {
     public:
-        void updateCache(const std::string& baseDir, const std::string& manifestFile);
-        void loadPluginCache(const std::string& baseDir, const std::string& manifestFile);
+        void updateCache(const std::string& baseDir = "", const std::string& manifestFile = "");
+        void loadPluginCache(const std::string& manifestFile = "");
 
         void getPluginList(std::vector<cv::Ptr<cv::PluginBase> >& plugins);
 
@@ -405,16 +405,16 @@ namespace
     {
     }
 
-    void PluginManagerImpl::loadPluginCache(const std::string& baseDir, const std::string& manifestFile)
+    void PluginManagerImpl::loadPluginCache(const std::string& manifestFile)
     {
-        const Poco::File pluginBaseDir = ::parseBaseDir(baseDir);
+        const Poco::File pluginBaseDir = ::parseBaseDir("");
 
         if (pluginBaseDir.exists() && pluginBaseDir.isDirectory())
         {
             const Poco::File pluginManifestFile = ::parseManifestFile(pluginBaseDir.path(), manifestFile);
 
             if (!pluginManifestFile.exists())
-                updateCache(baseDir, manifestFile);
+                updateCache("", manifestFile);
 
             ManifestParser handler(allPlugins_);
 
@@ -478,7 +478,7 @@ namespace
     cv::Ptr<cv::Object> PluginManagerImpl::createImpl(const std::string& interface, const cv::ParameterMap& params)
     {
         if (allPlugins_.empty())
-            loadPluginCache("", "");
+            loadPluginCache();
 
         std::vector<cv::Ptr<cv::Plugin> > plugins = pluginsMap_[interface];
 

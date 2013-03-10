@@ -57,7 +57,7 @@ namespace cv
     {
     public:
         virtual void updateCache(const std::string& baseDir = "", const std::string& manifestFile = "") = 0;
-        virtual void loadPluginCache(const std::string& baseDir = "", const std::string& manifestFile = "") = 0;
+        virtual void loadPluginCache(const std::string& manifestFile = "") = 0;
 
         virtual void getPluginList(std::vector<cv::Ptr<cv::PluginBase> >& plugins) = 0;
 
