@@ -43,9 +43,9 @@ namespace
 ///////////////////////////////////////////////////////////
 // ocvPluginCreate
 
-extern "C" OPENCV_PLUGIN_API cv::Ptr<cv::Object> ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params);
+extern "C" OPENCV_PLUGIN_API cv::Object* ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params);
 
-cv::Ptr<cv::Object> ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params)
+cv::Object* ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params)
 {
     assert(interface == "gpu.cuda.arithm");
 
@@ -56,5 +56,5 @@ cv::Ptr<cv::Object> ocvPluginCreate(const std::string& interface, const cv::Para
     if (func == "add_mat" && depth == cv::d8U && channels == 3)
         return new NppAdd8UC3;
 
-    return cv::Ptr<cv::Object>();
+    return 0;
 }

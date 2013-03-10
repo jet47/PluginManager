@@ -86,9 +86,9 @@ namespace
 ///////////////////////////////////////////////////////////
 // ocvPluginCreate
 
-extern "C" OPENCV_PLUGIN_API cv::Ptr<cv::Object> ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params);
+extern "C" OPENCV_PLUGIN_API cv::Object* ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params);
 
-cv::Ptr<cv::Object> ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params)
+cv::Object* ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params)
 {
     assert(interface == "gpu" || interface == "gpu.cuda.basic");
 

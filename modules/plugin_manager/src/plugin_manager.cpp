@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <utility>
+#include <iterator>
 
 #include <Poco/SingletonHolder.h>
 #include <Poco/Environment.h>
@@ -136,11 +137,11 @@ namespace
 
     void PluginManagerImpl::updateCache(const std::string& baseDir, const std::string& manifestFile)
     {
-        const Poco::File pluginBaseDir = ::parseBaseDir(baseDir);
+        const Poco::File pluginBaseDir = parseBaseDir(baseDir);
 
         if (pluginBaseDir.exists() && pluginBaseDir.isDirectory())
         {
-            const std::string pluginManifestFile = ::parseManifestFile(pluginBaseDir.path(), manifestFile);
+            const std::string pluginManifestFile = parseManifestFile(pluginBaseDir.path(), manifestFile);
 
             std::ofstream out(pluginManifestFile.c_str());
 
@@ -149,7 +150,7 @@ namespace
             writer.startDocument();
             writer.startElement("", "", "opencv_plugins");
 
-            ::processFolder(pluginBaseDir, writer);
+            processFolder(pluginBaseDir, writer);
 
             writer.endElement("", "", "opencv_plugins");
             writer.endDocument();
@@ -407,11 +408,11 @@ namespace
 
     void PluginManagerImpl::loadPluginCache(const std::string& manifestFile)
     {
-        const Poco::File pluginBaseDir = ::parseBaseDir("");
+        const Poco::File pluginBaseDir = parseBaseDir("");
 
         if (pluginBaseDir.exists() && pluginBaseDir.isDirectory())
         {
-            const Poco::File pluginManifestFile = ::parseManifestFile(pluginBaseDir.path(), manifestFile);
+            const Poco::File pluginManifestFile = parseManifestFile(pluginBaseDir.path(), manifestFile);
 
             if (!pluginManifestFile.exists())
                 updateCache("", manifestFile);

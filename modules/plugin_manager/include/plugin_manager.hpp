@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <sstream>
 
 #include "utility.hpp"
 #include "opencv_export.h"
@@ -40,7 +41,7 @@ namespace cv
         bool has(const std::string& name) const;
 
     private:
-        mutable std::map<std::string, cv::Any> map_;
+        mutable std::map<std::string, std::string> map_;
     };
 
     class OPENCV_EXPORT PluginManagerBase : public Object
@@ -72,13 +73,18 @@ namespace cv
 template <typename T>
 void cv::ParameterMap::set(const std::string& name, T val)
 {
-    map_[name] = val;
+    std::ostringstream ss;
+    ss << val;
+    map_[name] = ss.str();
 }
 
 template <typename T>
 T cv::ParameterMap::get(const std::string& name) const
 {
-    return map_[name];
+    std::istringstream ss(map_[name]);
+    T val;
+    ss >> val;
+    return val;
 }
 
 // PluginManagerBase

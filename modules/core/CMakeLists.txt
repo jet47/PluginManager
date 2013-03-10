@@ -14,6 +14,8 @@ set(all_build_files ${header_files} ${source_files} ${internal_header_files})
 
 add_compiler_export_flags()
 
+add_definitions("-Dopencv_utility_EXPORTS")
+
 add_library(${target} SHARED ${all_build_files})
 
 add_dependencies(${target} opencv_utility opencv_plugin_manager)

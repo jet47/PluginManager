@@ -52,7 +52,7 @@ void cv::Plugin::unload()
 
 namespace
 {
-    typedef cv::Ptr<cv::Object> (*ocvPluginCreate_t)(const std::string& interface, const cv::ParameterMap& params);
+    typedef cv::Object* (*ocvPluginCreate_t)(const std::string& interface, const cv::ParameterMap& params);
 }
 
 cv::Ptr<cv::Object> cv::Plugin::create(const std::string& interface, const cv::ParameterMap& params)
@@ -73,5 +73,10 @@ cv::Ptr<cv::Object> cv::Plugin::create(const std::string& interface, const cv::P
 
     const ocvPluginCreate_t ocvPluginCreate = (ocvPluginCreate_t) lib_.getSymbol("ocvPluginCreate");
 
-    return ocvPluginCreate(interface, params);
+    cv::Object* obj = ocvPluginCreate(interface, params);
+
+    if (obj)
+        return cv::Ptr<cv::Object>(obj);
+
+    return cv::Ptr<cv::Object>();
 }

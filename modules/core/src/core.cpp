@@ -34,7 +34,7 @@ namespace
 
     void* GpuBasicHolder::malloc2D(size_t height, size_t width, size_t& step)
     {
-        impl_->malloc2D(height, width, step);
+        return impl_->malloc2D(height, width, step);
     }
 
     void GpuBasicHolder::free(void* ptr)

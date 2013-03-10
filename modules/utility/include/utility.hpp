@@ -6,7 +6,6 @@
 #include <stdexcept>
 
 #include <Poco/SharedPtr.h>
-#include <Poco/DynamicAny.h>
 #include <Poco/AtomicCounter.h>
 
 #include "opencv_export.h"
@@ -20,7 +19,7 @@ namespace cv
     };
 
     template <typename T>
-    class OPENCV_EXPORT Ptr
+    class Ptr
     {
     public:
         Ptr() : impl_()
@@ -73,23 +72,6 @@ namespace cv
         Poco::SharedPtr<T> impl_;
 
         template <typename U> friend class Ptr;
-    };
-
-    class OPENCV_EXPORT Any : public Poco::DynamicAny
-    {
-    public:
-        Any() : Poco::DynamicAny()
-        {
-        }
-
-        template <typename T>
-        Any(const T& val) : Poco::DynamicAny(val)
-        {
-        }
-
-        Any(const char* pVal) : Poco::DynamicAny(pVal)
-        {
-        }
     };
 }
 
