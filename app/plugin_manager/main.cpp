@@ -103,6 +103,7 @@ namespace
             std::cout << "\t " << info.name << std::endl;
             std::cout << "\t\t Version : " << info.version << std::endl;
             std::cout << "\t\t Vendor : " << info.vendor << std::endl;
+            std::cout << "\t\t Full path : " << plugin->libPath() << std::endl;
             std::cout << "\t\t Interfaces : " << std::endl;
 
             for (size_t j = 0; j < info.interfaces.size(); ++j)

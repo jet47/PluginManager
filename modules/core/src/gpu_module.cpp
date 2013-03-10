@@ -18,7 +18,7 @@ namespace
 
     GpuModule::GpuModule()
     {
-        impl_ = cv::thePluginManager().create<cv::PluginManagerBase>("gpu");
+        impl_ = cv::thePluginManager().create<cv::PluginManagerBase>("gpu.module");
     }
 
     cv::Ptr<cv::Object> GpuModule::createImpl(const std::string& interface, const cv::ParameterMap& params)

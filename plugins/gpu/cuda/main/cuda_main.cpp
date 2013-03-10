@@ -13,7 +13,7 @@
 OPENCV_BEGIN_PLUGIN_DECLARATION("CUDA Main")
     OPENCV_PLUGIN_VENDOR("Itseez")
     OPENCV_PLUGIN_VERSION("2.4.4")
-    OPENCV_PLUGIN_INTERFACE("gpu")
+    OPENCV_PLUGIN_INTERFACE("gpu.module")
     OPENCV_PLUGIN_INTERFACE("gpu.cuda.basic")
 OPENCV_END_PLUGIN_DECLARATION()
 
@@ -90,9 +90,9 @@ extern "C" OPENCV_PLUGIN_API cv::Object* ocvPluginCreate(const std::string& inte
 
 cv::Object* ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params)
 {
-    assert(interface == "gpu" || interface == "gpu.cuda.basic");
+    assert(interface == "gpu.module" || interface == "gpu.cuda.basic");
 
-    if (interface == "gpu")
+    if (interface == "gpu.module")
         return new CudaModuleManager;
 
     return new CudaBasic;
