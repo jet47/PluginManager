@@ -19,7 +19,7 @@ add_library(${target} SHARED ${all_build_files})
 
 add_dependencies(${target} opencv_utility)
 
-target_link_libraries(${target} ${POCO_LIBRARIES} opencv_utility)
+target_link_libraries(${target} opencv_utility)
 
 set_target_properties(${target} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${bin_output_dir}

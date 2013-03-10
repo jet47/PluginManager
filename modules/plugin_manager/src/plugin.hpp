@@ -5,26 +5,27 @@
 
 #include <string>
 
-#include <Poco/SharedLibrary.h>
-
 #include "plugin_manager.hpp"
+#include "utility.hpp"
 #include "opencv_export.h"
 
 namespace cv
 {
-    class OPENCV_EXPORT Plugin : public cv::PluginBase
+    class OPENCV_NO_EXPORT Plugin : public PluginBase
     {
     public:
+        static bool check(const std::string& fileName);
+
         Plugin(const PluginInfo& info, const std::string& libPath);
 
-        cv::PluginInfo info() const;
+        PluginInfo info() const;
         std::string libPath() const;
         bool isLoaded() const;
 
-        bool load();
+        void load();
         void unload();
 
-        cv::Ptr<cv::Object> create(const std::string& interface, const cv::ParameterMap& params);
+        AutoPtr<RefCountedObject> create(const std::string& interface, const ParameterMap& params);
 
     private:
         Plugin(const Plugin&);
@@ -32,7 +33,7 @@ namespace cv
 
         PluginInfo info_;
         std::string libPath_;
-        Poco::SharedLibrary lib_;
+        SharedLibrary lib_;
     };
 }
 

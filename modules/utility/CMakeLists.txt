@@ -14,8 +14,6 @@ add_library(${target} SHARED ${all_build_files})
 
 generate_export_header(${target} BASE_NAME opencv)
 
-target_link_libraries(${target} ${POCO_LIBRARIES})
-
 set_target_properties(${target} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${bin_output_dir}
     LIBRARY_OUTPUT_DIRECTORY ${lib_output_dir}

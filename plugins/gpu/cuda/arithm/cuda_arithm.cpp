@@ -1,5 +1,6 @@
 #include <cassert>
 #include <stdexcept>
+#include <iostream>
 
 #include "plugin_manager.hpp"
 #include "core.hpp"
@@ -32,6 +33,7 @@ namespace
 
     void Add32FC1::apply(const cv::GpuMat& src1, const cv::GpuMat& src2, cv::GpuMat& dst)
     {
+        std::cout << "CUDA Add" << std::endl;
         device::add((const char*) src1.data, src1.step, (const char*) src2.data, src2.step, (char*) dst.data, dst.step, src1.rows, src1.cols);
     }
 }
@@ -39,9 +41,9 @@ namespace
 ///////////////////////////////////////////////////////////
 // ocvPluginCreate
 
-extern "C" OPENCV_PLUGIN_API cv::Object* ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params);
+extern "C" OPENCV_PLUGIN_API cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params);
 
-cv::Object* ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params)
+cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params)
 {
     assert(interface == "gpu.cuda.arithm");
 

@@ -1,5 +1,6 @@
 #include <cassert>
 #include <stdexcept>
+#include <iostream>
 
 #include <npp.h>
 
@@ -29,6 +30,8 @@ namespace
 
     void NppAdd8UC3::apply(const cv::GpuMat& src1, const cv::GpuMat& src2, cv::GpuMat& dst)
     {
+        std::cout << "NPP Add" << std::endl;
+
         NppiSize size;
         size.width = src1.cols;
         size.height = src2.rows;
@@ -43,9 +46,9 @@ namespace
 ///////////////////////////////////////////////////////////
 // ocvPluginCreate
 
-extern "C" OPENCV_PLUGIN_API cv::Object* ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params);
+extern "C" OPENCV_PLUGIN_API cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params);
 
-cv::Object* ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params)
+cv::RefCountedObject* ocvPluginocvCreatePluginreate(const std::string& interface, const cv::ParameterMap& params)
 {
     assert(interface == "gpu.cuda.arithm");
 

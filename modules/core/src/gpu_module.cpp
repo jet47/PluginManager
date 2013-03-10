@@ -1,7 +1,5 @@
 #include "gpu_module.hpp"
 
-#include <Poco/SingletonHolder.h>
-
 namespace
 {
     class GpuModule : public cv::PluginManagerBase
@@ -10,10 +8,10 @@ namespace
         GpuModule();
 
     protected:
-        cv::Ptr<cv::Object> createImpl(const std::string& interface, const cv::ParameterMap& params);
+        cv::AutoPtr<cv::RefCountedObject> createImpl(const std::string& interface, const cv::ParameterMap& params);
 
     private:
-        cv::Ptr<cv::PluginManagerBase> impl_;
+        cv::AutoPtr<cv::PluginManagerBase> impl_;
     };
 
     GpuModule::GpuModule()
@@ -21,14 +19,14 @@ namespace
         impl_ = cv::thePluginManager().create<cv::PluginManagerBase>("gpu.module");
     }
 
-    cv::Ptr<cv::Object> GpuModule::createImpl(const std::string& interface, const cv::ParameterMap& params)
+    cv::AutoPtr<cv::RefCountedObject> GpuModule::createImpl(const std::string& interface, const cv::ParameterMap& params)
     {
-        return impl_->create<cv::Object>(interface, params);
+        return impl_->create<cv::RefCountedObject>(interface, params);
     }
 }
 
 cv::PluginManagerBase& cv::theGpuModule()
 {
-    static Poco::SingletonHolder<GpuModule> holder;
+    static cv::SingletonHolder<GpuModule> holder;
     return *holder.get();
 }

@@ -17,26 +17,6 @@ OPENCV_BEGIN_PLUGIN_DECLARATION("CUDA Main")
     OPENCV_PLUGIN_INTERFACE("gpu.cuda.basic")
 OPENCV_END_PLUGIN_DECLARATION()
 
-bool ocvLoadPlugin()
-{
-    int count;
-    cudaError_t error = cudaGetDeviceCount( &count );
-
-    if (error == cudaErrorInsufficientDriver)
-    {
-        std::cerr << "CUDA : Insufficient Driver" << std::endl;
-        return false;
-    }
-
-    if (error == cudaErrorNoDevice)
-    {
-        std::cerr << "CUDA : No Device" << std::endl;
-        return false;
-    }
-
-    return (count > 0);
-}
-
 ///////////////////////////////////////////////////////////
 // gpu
 
@@ -45,16 +25,16 @@ namespace
     class CudaModuleManager : public cv::PluginManagerBase
     {
     protected:
-        cv::Ptr<cv::Object> createImpl(const std::string& interface, const cv::ParameterMap& params);
+        cv::AutoPtr<cv::RefCountedObject> createImpl(const std::string& interface, const cv::ParameterMap& params);
     };
 
-    cv::Ptr<cv::Object> CudaModuleManager::createImpl(const std::string& interface, const cv::ParameterMap& params)
+    cv::AutoPtr<cv::RefCountedObject> CudaModuleManager::createImpl(const std::string& interface, const cv::ParameterMap& params)
     {
         const std::string fullName = "gpu.cuda." + interface;
 
         cv::PluginManager& manager = cv::thePluginManager();
 
-        return manager.create<cv::Object>(fullName, params);
+        return manager.create<cv::RefCountedObject>(fullName, params);
     }
 }
 
@@ -86,9 +66,9 @@ namespace
 ///////////////////////////////////////////////////////////
 // ocvPluginCreate
 
-extern "C" OPENCV_PLUGIN_API cv::Object* ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params);
+extern "C" OPENCV_PLUGIN_API cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params);
 
-cv::Object* ocvPluginCreate(const std::string& interface, const cv::ParameterMap& params)
+cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params)
 {
     assert(interface == "gpu.module" || interface == "gpu.cuda.basic");
 

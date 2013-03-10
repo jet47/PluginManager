@@ -1,7 +1,4 @@
 #include "core.hpp"
-
-#include <Poco/SingletonHolder.h>
-
 #include "gpu_module.hpp"
 
 cv::GpuMat::GpuMat() : rows(0), cols(0), depth(cv::d8U), channels(0), data(0), step(0)
@@ -24,7 +21,7 @@ namespace
         void free(void* ptr);
 
     private:
-        cv::Ptr<cv::GpuBasic> impl_;
+        cv::AutoPtr<cv::GpuBasic> impl_;
     };
 
     GpuBasicHolder::GpuBasicHolder()
@@ -44,7 +41,7 @@ namespace
 
     GpuBasicHolder& theGpuBasic()
     {
-        static Poco::SingletonHolder<GpuBasicHolder> holder;
+        static cv::SingletonHolder<GpuBasicHolder> holder;
         return *holder.get();
     }
 }
@@ -79,7 +76,7 @@ void cv::GpuMat::release()
 
 void cv::add(const cv::GpuMat& src1, const cv::GpuMat& src2, cv::GpuMat& dst)
 {
-    static cv::Ptr<cv::GpuArithmBinary> impls[2][4];
+    static cv::AutoPtr<cv::GpuArithmBinary> impls[2][4];
 
     if (src1.rows != src2.rows || src1.cols != src2.cols || src1.depth != src2.depth || src1.channels != src2.channels)
         throw std::runtime_error("Bad input");

@@ -21,10 +21,10 @@ namespace cv
         std::vector<std::string> interfaces;
     };
 
-    class OPENCV_EXPORT PluginBase : public Object
+    class OPENCV_EXPORT PluginBase : public RefCountedObject
     {
     public:
-        virtual cv::PluginInfo info() const = 0;
+        virtual PluginInfo info() const = 0;
         virtual std::string libPath() const = 0;
         virtual bool isLoaded() const = 0;
     };
@@ -44,28 +44,30 @@ namespace cv
         mutable std::map<std::string, std::string> map_;
     };
 
-    class OPENCV_EXPORT PluginManagerBase : public Object
+    class OPENCV_EXPORT PluginManagerBase : public RefCountedObject
     {
     public:
         template <class Base>
-        cv::Ptr<Base> create(const std::string& interface, const cv::ParameterMap& params = cv::ParameterMap());
+        AutoPtr<Base> create(const std::string& interface, const ParameterMap& params = ParameterMap());
 
     protected:
-        virtual cv::Ptr<cv::Object> createImpl(const std::string& interface, const cv::ParameterMap& params) = 0;
+        virtual AutoPtr<RefCountedObject> createImpl(const std::string& interface, const ParameterMap& params) = 0;
     };
 
     class OPENCV_EXPORT PluginManager : public PluginManagerBase
     {
     public:
-        virtual void updateCache(const std::string& baseDir = "", const std::string& manifestFile = "") = 0;
-        virtual void loadPluginCache(const std::string& manifestFile = "") = 0;
+        virtual void addPlugin(const std::string& libPath) = 0;
+        virtual void addPluginDir(const std::string& dir, bool recursive = true) = 0;
 
-        virtual void getPluginList(std::vector<cv::Ptr<cv::PluginBase> >& plugins) = 0;
+        virtual void getPluginList(std::vector<AutoPtr<PluginBase> >& plugins) = 0;
 
-        virtual void setPriority(const std::string& interface, const std::string& pluginName, int priority) = 0;
+        virtual void setPriority(const std::string& interfaceExpr, const std::string& pluginNameExpr, int priority) = 0;
+
+        virtual bool hasPlugin(const std::string& interface) = 0;
     };
 
-    OPENCV_EXPORT cv::PluginManager& thePluginManager();
+    OPENCV_EXPORT PluginManager& thePluginManager();
 }
 
 // ParameterMap
@@ -90,9 +92,9 @@ T cv::ParameterMap::get(const std::string& name) const
 // PluginManagerBase
 
 template <class Base>
-cv::Ptr<Base> cv::PluginManagerBase::create(const std::string& interface, const cv::ParameterMap& params)
+cv::AutoPtr<Base> cv::PluginManagerBase::create(const std::string& interface, const cv::ParameterMap& params)
 {
-    cv::Ptr<cv::Object> obj = createImpl(interface, params);
+    cv::AutoPtr<cv::RefCountedObject> obj = createImpl(interface, params);
     return obj.cast<Base>();
 }
 
@@ -105,28 +107,21 @@ cv::Ptr<Base> cv::PluginManagerBase::create(const std::string& interface, const 
 #endif
 
 #define OPENCV_BEGIN_PLUGIN_DECLARATION(plugin_name) \
-    extern "C" \
+    extern "C" OPENCV_PLUGIN_API void ocvGetPluginInfo(cv::PluginInfo* info); \
+    void ocvGetPluginInfo(cv::PluginInfo* info) \
     { \
-        OPENCV_PLUGIN_API cv::PluginInfo ocvGetPluginInfo(); \
-        OPENCV_PLUGIN_API bool ocvLoadPlugin(); \
-        OPENCV_PLUGIN_API void ocvUnloadPlugin(); \
-    } \
-    cv::PluginInfo ocvGetPluginInfo() \
-    { \
-        cv::PluginInfo info;\
-        info.name = plugin_name;
+        info->name = plugin_name;
 
 #define OPENCV_PLUGIN_VENDOR(plugin_vendor) \
-        info.vendor = plugin_vendor;
+        info->vendor = plugin_vendor;
 
 #define OPENCV_PLUGIN_VERSION(plugin_version) \
-        info.version = plugin_version;
+        info->version = plugin_version;
 
 #define OPENCV_PLUGIN_INTERFACE(plugin_interface) \
-        info.interfaces.push_back(plugin_interface);
+        info->interfaces.push_back(plugin_interface);
 
 #define OPENCV_END_PLUGIN_DECLARATION() \
-        return info; \
     }
 
 #endif // __OPENCV_PLUGIN_MANAGER_HPP__

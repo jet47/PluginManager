@@ -13,7 +13,7 @@ add_library(${target} SHARED ${all_build_files})
 
 add_dependencies(${target} opencv_utility opencv_plugin_manager opencv_core)
 
-target_link_libraries(${target} ${POCO_LIBRARIES} ${CUDA_LIBRARIES} opencv_utility opencv_plugin_manager opencv_core)
+target_link_libraries(${target} ${CUDA_LIBRARIES} opencv_utility opencv_plugin_manager opencv_core)
 
 set_target_properties(${target} PROPERTIES
     PREFIX ""

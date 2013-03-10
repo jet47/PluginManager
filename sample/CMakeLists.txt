@@ -1,4 +1,4 @@
-set(target "sample_app")
+set(target "sample")
 
 include_directories("${CMAKE_SOURCE_DIR}/modules/utility/include")
 include_directories("${CMAKE_SOURCE_DIR}/modules/plugin_manager/include")
@@ -13,7 +13,7 @@ add_executable(${target} ${all_build_files})
 
 add_dependencies(${target} opencv_utility opencv_plugin_manager opencv_core)
 
-target_link_libraries(${target} ${POCO_LIBRARIES} opencv_utility opencv_plugin_manager opencv_core)
+target_link_libraries(${target} opencv_utility opencv_plugin_manager opencv_core)
 
 set_target_properties(${target} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${bin_output_dir}

@@ -10,7 +10,7 @@
 
 namespace cv
 {
-    class OPENCV_EXPORT Algorithm : public cv::Object
+    class OPENCV_EXPORT Algorithm : public cv::RefCountedObject
     {
     };
 

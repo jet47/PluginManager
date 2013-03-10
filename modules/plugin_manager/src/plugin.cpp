@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-cv::Plugin::Plugin(const cv::PluginInfo& info, const std::string& libPath) :
+cv::Plugin::Plugin(const PluginInfo& info, const std::string& libPath) :
     info_(info), libPath_(libPath)
 {
 }
@@ -22,26 +22,26 @@ bool cv::Plugin::isLoaded() const
     return lib_.isLoaded();
 }
 
-namespace
+bool cv::Plugin::check(const std::string& fileName)
 {
-    typedef bool (*ocvLoadPlugin_t)();
+    try
+    {
+        cv::SharedLibrary lib(fileName);
+
+        return lib.hasSymbol("ocvGetPluginInfo") && lib.hasSymbol("ocvCreatePlugin");
+    }
+    catch(...)
+    {
+        return false;
+    }
 }
 
-bool cv::Plugin::load()
+void cv::Plugin::load()
 {
     if (isLoaded())
-        return true;
+        return;
 
     lib_.load(libPath_);
-
-    if (!lib_.hasSymbol("ocvLoadPlugin"))
-        return true;
-    else
-    {
-        const ocvLoadPlugin_t ocvLoadPlugin = (ocvLoadPlugin_t) lib_.getSymbol("ocvLoadPlugin");
-
-        return ocvLoadPlugin();
-    }
 }
 
 void cv::Plugin::unload()
@@ -52,31 +52,19 @@ void cv::Plugin::unload()
 
 namespace
 {
-    typedef cv::Object* (*ocvPluginCreate_t)(const std::string& interface, const cv::ParameterMap& params);
+    typedef cv::RefCountedObject* (*ocvCreatePlugin_t)(const std::string& interface, const cv::ParameterMap& params);
 }
 
-cv::Ptr<cv::Object> cv::Plugin::create(const std::string& interface, const cv::ParameterMap& params)
+cv::AutoPtr<cv::RefCountedObject> cv::Plugin::create(const std::string& interface, const cv::ParameterMap& params)
 {
-    if (!load())
-    {
-        std::ostringstream msg;
-        msg << "Can't load plugin - " << info_.name;
-        throw std::runtime_error(msg.str());
-    }
+    load();
 
-    if (!lib_.hasSymbol("ocvPluginCreate"))
-    {
-        std::ostringstream msg;
-        msg << "Incorrect plugin - " << info_.name;
-        throw std::runtime_error(msg.str());
-    }
+    const ocvCreatePlugin_t ocvCreatePlugin = (ocvCreatePlugin_t) lib_.getSymbol("ocvCreatePlugin");
 
-    const ocvPluginCreate_t ocvPluginCreate = (ocvPluginCreate_t) lib_.getSymbol("ocvPluginCreate");
-
-    cv::Object* obj = ocvPluginCreate(interface, params);
+    cv::RefCountedObject* obj = ocvCreatePlugin(interface, params);
 
     if (obj)
-        return cv::Ptr<cv::Object>(obj);
+        return cv::AutoPtr<cv::RefCountedObject>(obj);
 
-    return cv::Ptr<cv::Object>();
+    return cv::AutoPtr<cv::RefCountedObject>();
 }

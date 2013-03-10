@@ -12,7 +12,7 @@ namespace cv
 {
     OPENCV_EXPORT cv::PluginManagerBase& theGpuModule();
 
-    class OPENCV_EXPORT GpuBasic : public cv::Object
+    class OPENCV_EXPORT GpuBasic : public cv::RefCountedObject
     {
     public:
         virtual void* malloc2D(size_t height, size_t width, size_t& step) = 0;
