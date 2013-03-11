@@ -8,7 +8,12 @@
 #include <vector>
 
 #include "platform.h"
-#include "opencv_export.h"
+
+#if defined(PLUGIN_MANAGER_LIB) && (OPENCV_OS == OPENCV_OS_WINDOWS_NT)
+    #define OPENCV_EXPORT __declspec(dllexport)
+#else
+    #define OPENCV_EXPORT
+#endif
 
 namespace cv
 {

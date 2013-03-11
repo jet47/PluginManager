@@ -136,14 +136,14 @@ namespace
         static bool hasImpl(const std::string& name);
 
     private:
-        static Mutex mutex_;
+        static cv::Mutex mutex_;
     };
 
-    FastMutex EnvironmentImpl::mutex_;
+    cv::Mutex EnvironmentImpl::mutex_;
 
     std::string EnvironmentImpl::getImpl(const std::string& name)
     {
-        Mutex::ScopedLock lock(mutex_);
+        cv::Mutex::ScopedLock lock(mutex_);
 
         const char* val = getenv(name.c_str());
 
@@ -155,7 +155,7 @@ namespace
 
     bool EnvironmentImpl::hasImpl(const std::string& name)
     {
-        Mutex::ScopedLock lock(mutex_);
+        cv::Mutex::ScopedLock lock(mutex_);
 
         return getenv(name.c_str()) != 0;
     }

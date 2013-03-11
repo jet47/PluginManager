@@ -1,20 +1,14 @@
 set(target "opencv_core")
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 include_directories("${CMAKE_SOURCE_DIR}/modules/utility/include")
 include_directories("${CMAKE_SOURCE_DIR}/modules/plugin_manager/include")
-include_directories("${CMAKE_BINARY_DIR}/modules/utility")
 
 file(GLOB header_files "include/*.h" "include/*.hpp")
 file(GLOB source_files "src/*.c" "src/*.cpp")
 file(GLOB internal_header_files "src/*.h" "src/*.hpp")
 set(all_build_files ${header_files} ${source_files} ${internal_header_files})
-
-add_compiler_export_flags()
-
-add_definitions("-Dopencv_utility_EXPORTS")
 
 add_library(${target} SHARED ${all_build_files})
 

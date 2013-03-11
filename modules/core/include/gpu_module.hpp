@@ -6,7 +6,6 @@
 #include "utility.hpp"
 #include "plugin_manager.hpp"
 #include "core.hpp"
-#include "opencv_export.h"
 
 namespace cv
 {

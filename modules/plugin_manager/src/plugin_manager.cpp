@@ -77,7 +77,7 @@ namespace
 
         for (size_t i = 0; i < files.size(); ++i)
         {
-            if (!cv::Plugin::check(files[i]))
+            if (cv::Plugin::check(files[i]))
                 addPlugin(files[i]);
         }
     }

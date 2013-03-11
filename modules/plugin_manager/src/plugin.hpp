@@ -7,11 +7,10 @@
 
 #include "plugin_manager.hpp"
 #include "utility.hpp"
-#include "opencv_export.h"
 
 namespace cv
 {
-    class OPENCV_NO_EXPORT Plugin : public PluginBase
+    class Plugin : public PluginBase
     {
     public:
         static bool check(const std::string& fileName);

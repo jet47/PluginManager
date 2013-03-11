@@ -9,7 +9,6 @@
 #include <sstream>
 
 #include "utility.hpp"
-#include "opencv_export.h"
 
 namespace cv
 {

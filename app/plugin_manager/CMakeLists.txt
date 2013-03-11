@@ -2,7 +2,6 @@ set(target "plugin_manager_app")
 
 include_directories("${CMAKE_SOURCE_DIR}/modules/utility/include")
 include_directories("${CMAKE_SOURCE_DIR}/modules/plugin_manager/include")
-include_directories("${CMAKE_BINARY_DIR}/modules/utility")
 
 file(GLOB header_files "*.h" "*.hpp")
 file(GLOB source_files "*.c" "*.cpp")

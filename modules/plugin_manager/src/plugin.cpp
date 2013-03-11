@@ -28,7 +28,10 @@ bool cv::Plugin::check(const std::string& fileName)
     {
         cv::SharedLibrary lib(fileName);
 
-        return lib.hasSymbol("ocvGetPluginInfo") && lib.hasSymbol("ocvCreatePlugin");
+        const bool hasInfo = lib.hasSymbol("ocvGetPluginInfo");
+        const bool hasCreate = lib.hasSymbol("ocvCreatePlugin");
+
+        return hasInfo && hasCreate;
     }
     catch(...)
     {

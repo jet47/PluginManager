@@ -48,7 +48,7 @@ namespace
 
 extern "C" OPENCV_PLUGIN_API cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params);
 
-cv::RefCountedObject* ocvPluginocvCreatePluginreate(const std::string& interface, const cv::ParameterMap& params)
+cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params)
 {
     assert(interface == "gpu.cuda.arithm");
 

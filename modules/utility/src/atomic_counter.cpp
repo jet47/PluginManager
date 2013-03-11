@@ -8,15 +8,7 @@
     #include <windows.h>
 #elif OPENCV_OS == OPENCV_OS_MAC_OS_X
     #include <libkern/OSAtomic.h>
-#elif ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 2) || __GNUC__ > 4) && (defined(__x86_64__) || defined(__i386__))
-    #if !defined(OPENCV_HAVE_GCC_ATOMICS) && !defined(OPENCV_NO_GCC_ATOMICS)
-        #define OPENCV_HAVE_GCC_ATOMICS
-    #endif
-#elif ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3) || __GNUC__ > 4)
-    #if !defined(OPENCV_HAVE_GCC_ATOMICS) && !defined(OPENCV_NO_GCC_ATOMICS)
-        #define OPENCV_HAVE_GCC_ATOMICS
-    #endif
-#endif // OPENCV_OS
+#endif
 
 #if OPENCV_OS == OPENCV_OS_WINDOWS_NT
 

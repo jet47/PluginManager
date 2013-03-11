@@ -1,25 +1,19 @@
 set(target "opencv_plugin_manager")
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 include_directories("${CMAKE_SOURCE_DIR}/modules/utility/include")
-include_directories("${CMAKE_BINARY_DIR}/modules/utility")
 
 file(GLOB header_files "include/*.h" "include/*.hpp")
 file(GLOB source_files "src/*.c" "src/*.cpp")
 file(GLOB internal_header_files "src/*.h" "src/*.hpp")
 set(all_build_files ${header_files} ${source_files} ${internal_header_files})
 
-add_compiler_export_flags()
-
-add_definitions("-Dopencv_utility_EXPORTS")
-
 add_library(${target} SHARED ${all_build_files})
 
 add_dependencies(${target} opencv_utility)
 
-target_link_libraries(${target} opencv_utility)
+target_link_libraries(${target} ${CMAKE_DL_LIBS} opencv_utility)
 
 set_target_properties(${target} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${bin_output_dir}

@@ -1,5 +1,6 @@
 #include "utility.hpp"
 
+#include <cstring>
 #include <algorithm>
 
 #if defined WIN32 || defined _WIN32 || defined WINCE
@@ -192,7 +193,7 @@ void cv::Path::glob(const std::string& pattern, std::vector<std::string>& result
 
     if (isDir(pattern, 0))
     {
-        if(strchr(dir_separators, pattern[pattern.size() - 1]) != 0)
+        if(std::strchr(dir_separators, pattern[pattern.size() - 1]) != 0)
         {
             path = pattern.substr(0, pattern.size() - 1);
         }
