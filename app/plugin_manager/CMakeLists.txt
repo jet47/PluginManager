@@ -1,4 +1,4 @@
-set(target "plugin_manager_app")
+set(target "plugin_manager")
 
 include_directories("${CMAKE_SOURCE_DIR}/modules/utility/include")
 include_directories("${CMAKE_SOURCE_DIR}/modules/plugin_manager/include")
@@ -17,5 +17,4 @@ set_target_properties(${target} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${bin_output_dir}
     LIBRARY_OUTPUT_DIRECTORY ${lib_output_dir}
     ARCHIVE_OUTPUT_DIRECTORY ${lib_output_dir}
-    OUTPUT_NAME "opencv_plugin_manager"
 )

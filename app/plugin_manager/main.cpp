@@ -5,10 +5,7 @@
 
 int main()
 {
-    std::string a = cv::Environment::get("OPENCV_PLUGIN_DIR", ".");
-
     cv::PluginManager& manager = cv::thePluginManager();
-    manager.addPluginDir(a);
 
     std::vector<cv::AutoPtr<cv::PluginBase> > plugins;
     manager.getPluginList(plugins);
