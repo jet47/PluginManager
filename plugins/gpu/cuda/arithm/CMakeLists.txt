@@ -8,6 +8,10 @@ file(GLOB header_files "*.h" "*.hpp")
 file(GLOB source_files "*.c" "*.cpp" "*.cu")
 set(all_build_files ${header_files} ${source_files})
 
+if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm")
+    list(APPEND CUDA_NVCC_FLAGS "--target-cpu-architecture=ARM")
+endif()
+
 CUDA_ADD_LIBRARY(${target} SHARED ${all_build_files})
 
 add_dependencies(${target} opencv_utility opencv_plugin_manager opencv_core)

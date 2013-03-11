@@ -11,7 +11,7 @@ set(all_build_files ${header_files} ${source_files} ${internal_header_files})
 
 add_library(${target} SHARED ${all_build_files})
 
-target_link_libraries(${target} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${target} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 
 set_target_properties(${target} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${bin_output_dir}
