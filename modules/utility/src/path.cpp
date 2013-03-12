@@ -2,8 +2,10 @@
 
 #include <cstring>
 #include <algorithm>
+#include <sstream>
+#include <stdexcept>
 
-#if defined WIN32 || defined _WIN32 || defined WINCE
+#if defined(OPENCV_OS_FAMILY_WINDOWS)
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -74,7 +76,7 @@ namespace
 {
     bool isDir(const std::string& path, DIR* dir)
     {
-    #if defined WIN32 || defined _WIN32 || defined WINCE
+    #if defined(OPENCV_OS_FAMILY_WINDOWS)
         DWORD attributes;
         if (dir)
             attributes = dir->data.dwFileAttributes;
@@ -177,13 +179,12 @@ namespace
             closedir(dir);
         }
         else
-            throw std::runtime_error("could not open directory");
+        {
+            std::ostringstream msg;
+            msg << "Could not open directory " << directory;
+            throw std::runtime_error(msg.str());
+        }
     }
-}
-
-bool cv::Path::isDirectory(const std::string& path)
-{
-    return isDir(path, 0);
 }
 
 void cv::Path::glob(const std::string& pattern, std::vector<std::string>& result, bool recursive)

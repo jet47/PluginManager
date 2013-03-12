@@ -9,38 +9,38 @@
 
 namespace cv
 {
-    class OPENCV_EXPORT Algorithm : public cv::RefCountedObject
+    class Algorithm : public RefCountedObject
     {
     };
 
-    enum Depth
+    enum
     {
-        d8U,
-        d32F
+        CV_8U,
+        CV_32F
     };
 
-    class OPENCV_EXPORT GpuMat
+    class OPENCV_API GpuMat
     {
     public:
         GpuMat();
         ~GpuMat();
 
-        void create(int rows, int cols, cv::Depth depth, int channels);
+        void create(int rows, int cols, int depth, int channels);
         void release();
 
         int rows;
         int cols;
-        cv::Depth depth;
+        int depth;
         int channels;
         void* data;
         size_t step;
 
     private:
-        GpuMat(const cv::GpuMat& other);
-        cv::GpuMat& operator =(const cv::GpuMat& other);
+        GpuMat(const GpuMat& other);
+        GpuMat& operator =(const GpuMat& other);
     };
 
-    OPENCV_EXPORT void add(const cv::GpuMat& src1, const cv::GpuMat& src2, cv::GpuMat& dst);
+    OPENCV_API void add(const GpuMat& src1, const GpuMat& src2, GpuMat& dst);
 }
 
 #endif // __OPENCV_CORE_HPP__

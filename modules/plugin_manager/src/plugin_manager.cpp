@@ -11,31 +11,52 @@
 
 #include "plugin.hpp"
 
-bool cv::ParameterMap::has(const std::string& name) const
-{
-    return map_.find(name) != map_.end();
-}
-
 namespace
 {
+    class PluginLoggerImpl : public cv::PluginLogger
+    {
+    public:
+        void message(const std::string& msg);
+
+        std::string getOutput() const;
+
+    private:
+        std::ostringstream ostr_;
+    };
+
+    void PluginLoggerImpl::message(const std::string& msg)
+    {
+        ostr_ << '\t' << msg << std::endl;
+    }
+
+    std::string PluginLoggerImpl::getOutput() const
+    {
+        return ostr_.str();
+    }
+
     class PluginManagerImpl : public cv::PluginManager
     {
     public:
+        PluginManagerImpl();
+
         void addPlugin(const std::string& libPath);
         void addPluginDir(const std::string& dir, bool recursive = true);
 
         void getPluginList(std::vector<cv::AutoPtr<cv::PluginBase> >& plugins);
 
         void setPriority(const std::string& interfaceExpr, const std::string& pluginNameExpr, int priority);
+        void clearPrioritySettings();
 
         bool hasPlugin(const std::string& interface);
+
+        void setLogLevel(bool verbose);
 
     protected:
         cv::AutoPtr<cv::RefCountedObject> createImpl(const std::string& interface, const cv::ParameterMap& params);
 
     private:
         std::vector<cv::AutoPtr<cv::Plugin> > allPlugins_;
-        std::map<std::string, std::vector<cv::AutoPtr<cv::Plugin> > > pluginsMap_;
+        std::map<std::string, std::vector<cv::Plugin*> > pluginsMap_;
 
         struct PrioritySettings
         {
@@ -44,14 +65,29 @@ namespace
             int priority;
         };
         std::vector<PrioritySettings> prioritySettings_;
+
+        cv::Mutex mutex_;
+
+        bool verbose_;
     };
+
+    PluginManagerImpl::PluginManagerImpl() : verbose_(false)
+    {
+    }
 
     typedef void (*ocvGetPluginInfo_t)(cv::PluginInfo* info);
 
     void PluginManagerImpl::addPlugin(const std::string& libPath)
     {
         if (!cv::Plugin::check(libPath))
-            throw std::runtime_error("Incorrect plugin");
+        {
+            std::ostringstream msg;
+            msg << libPath << " is not a correct OpenCV plugin";
+            throw std::runtime_error(msg.str());
+        }
+
+        if (verbose_)
+            std::cout << "OpenCV Plugin Manager : Try to load " << libPath << std::endl;
 
         cv::SharedLibrary lib;
 
@@ -63,15 +99,23 @@ namespace
 
         lib.unload();
 
-        cv::AutoPtr<cv::Plugin> plugin = new cv::Plugin(info, libPath);
+        cv::Mutex::ScopedLock lock(mutex_);
+
+        if (verbose_)
+            std::cout << "OpenCV Plugin Manager : Add " << libPath << std::endl;
+
+        cv::AutoPtr<cv::Plugin> plugin(new cv::Plugin(info, libPath));
         allPlugins_.push_back(plugin);
 
         for (size_t i = 0; i < info.interfaces.size(); ++i)
-            pluginsMap_[info.interfaces[i]].push_back(plugin);
+            pluginsMap_[info.interfaces[i]].push_back(plugin.get());
     }
 
     void PluginManagerImpl::addPluginDir(const std::string& dir, bool recursive)
     {
+        if (verbose_)
+            std::cout << "OpenCV Plugin Manager : Scan " << dir << ' ' << (recursive ? "[Recursive]" : "[Non Recursive]") << std::endl;
+
         std::vector<std::string> files;
         cv::Path::glob(dir + "/*" + cv::SharedLibrary::suffix(), files, recursive);
 
@@ -89,6 +133,8 @@ namespace
 
         plugins.clear();
 
+        cv::Mutex::ScopedLock lock(mutex_);
+
         std::copy(allPlugins_.begin(), allPlugins_.end(), std::back_inserter(plugins));
     }
 
@@ -98,14 +144,30 @@ namespace
         s.interfaceExpr = interfaceExpr;
         s.pluginNameExpr = pluginNameExpr;
         s.priority = priority;
+
+        cv::Mutex::ScopedLock lock(mutex_);
+
+        if (verbose_)
+            std::cout << "OpenCV Plugin Manager : Add new priority settings : " << interfaceExpr << " " << pluginNameExpr << " " << priority << std::endl;
+
         prioritySettings_.push_back(s);
+    }
+
+    void PluginManagerImpl::clearPrioritySettings()
+    {
+        cv::Mutex::ScopedLock lock(mutex_);
+
+        if (verbose_)
+            std::cout << "OpenCV Plugin Manager : Clear priority settings" << std::endl;
+
+        prioritySettings_.clear();
     }
 
     struct PluginCompare
     {
         mutable std::map<std::string, int> priorityMap;
 
-        bool operator ()(const cv::AutoPtr<cv::Plugin>& pluginA, const cv::AutoPtr<cv::Plugin>& pluginB) const
+        bool operator ()(const cv::Plugin* pluginA, const cv::Plugin* pluginB) const
         {
             // TODO : regexp
             return priorityMap[pluginA->info().name] > priorityMap[pluginB->info().name];
@@ -117,7 +179,12 @@ namespace
         if (allPlugins_.empty())
             addPluginDir(cv::Environment::get("OPENCV_PLUGIN_DIR", "."));
 
-        std::vector<cv::AutoPtr<cv::Plugin> > plugins = pluginsMap_[interface];
+        if (verbose_)
+            std::cout << "OpenCV Plugin Manager : Look for " << interface << std::endl;
+
+        cv::Mutex::ScopedLock lock(mutex_);
+
+        std::vector<cv::Plugin*> plugins = pluginsMap_[interface];
 
         if (plugins.empty())
         {
@@ -129,7 +196,7 @@ namespace
         PluginCompare pluginCmp;
         for (size_t i = 0; i < plugins.size(); ++i)
         {
-            const cv::AutoPtr<cv::Plugin>& plugin = plugins[i];
+            const cv::Plugin* plugin = plugins[i];
             pluginCmp.priorityMap[plugin->info().name] = plugin->isLoaded();
         }
         for (size_t i = 0; i < prioritySettings_.size(); ++i)
@@ -145,7 +212,7 @@ namespace
 
         for (size_t i = 0; i < plugins.size(); ++i)
         {
-            cv::AutoPtr<cv::Plugin>& plugin = plugins[i];
+            cv::Plugin* plugin = plugins[i];
 
             // TODO : regex
             if (pluginCmp.priorityMap[plugin->info().name] < 0)
@@ -156,9 +223,27 @@ namespace
             if (!wasLoaded)
                 plugin->load();
 
-            cv::AutoPtr<cv::RefCountedObject> obj = plugin->create(interface, params);
+            PluginLoggerImpl logger;
+
+            cv::AutoPtr<cv::RefCountedObject> obj = plugin->create(interface, params, &logger);
+
+            if (verbose_)
+            {
+                std::string pluginOutput = logger.getOutput();
+                if (!pluginOutput.empty())
+                {
+                    std::cout << "OpenCV Plugin Manager : " << plugin->info().name << ':' << std::endl;
+                    std::cout << pluginOutput;
+                }
+            }
+
             if (!obj.isNull())
+            {
+                if (verbose_)
+                    std::cout << "OpenCV Plugin Manager : Use " << plugin->info().name << std::endl;
+
                 return obj;
+            }
 
             if (!wasLoaded)
                 plugin->unload();
@@ -173,10 +258,15 @@ namespace
     {
         return pluginsMap_.find(interface) != pluginsMap_.end();
     }
+
+    void PluginManagerImpl::setLogLevel(bool verbose)
+    {
+        verbose_ = verbose;
+    }
 }
 
-cv::PluginManager& cv::thePluginManager()
+cv::PluginManager *cv::thePluginManager()
 {
     static cv::SingletonHolder<PluginManagerImpl> holder;
-    return *holder.get();
+    return holder.get();
 }

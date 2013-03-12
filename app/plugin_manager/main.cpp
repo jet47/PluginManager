@@ -5,16 +5,18 @@
 
 int main()
 {
-    cv::PluginManager& manager = cv::thePluginManager();
+    cv::PluginManager* manager = cv::thePluginManager();
+
+    manager->setLogLevel(true);
 
     std::vector<cv::AutoPtr<cv::PluginBase> > plugins;
-    manager.getPluginList(plugins);
+    manager->getPluginList(plugins);
 
     std::cout << "OpenCV Plugins: \n" << std::endl;
     for (size_t i = 0; i < plugins.size(); ++i)
     {
         const cv::AutoPtr<cv::PluginBase>& plugin = plugins[i];
-        cv::PluginInfo info = plugin->info();
+        const cv::PluginInfo& info = plugin->info();
 
         std::cout << "\t " << info.name << std::endl;
         std::cout << "\t\t Version : " << info.version << std::endl;

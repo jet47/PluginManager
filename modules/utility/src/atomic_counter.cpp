@@ -1,16 +1,14 @@
 #include "utility.hpp"
 
-#include <stdexcept>
+#if defined(OPENCV_OS_FAMILY_WINDOWS)
 
-#if OPENCV_OS == OPENCV_OS_WINDOWS_NT
-    #define WIN32_LEAN_AND_MEAN
-    #define NOMINMAX
-    #include <windows.h>
-#elif OPENCV_OS == OPENCV_OS_MAC_OS_X
-    #include <libkern/OSAtomic.h>
-#endif
+//
+// OPENCV_OS_FAMILY_WINDOWS
+//
 
-#if OPENCV_OS == OPENCV_OS_WINDOWS_NT
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
 
 cv::AtomicCounter::AtomicCounter() : counter_(0)
 {
@@ -77,7 +75,13 @@ bool cv::AtomicCounter::operator ! () const
     return counter_ == 0;
 }
 
-#elif OPENCV_OS == OPENCV_OS_MAC_OS_X
+#elif (OPENCV_OS == OPENCV_OS_MAC_OS_X)
+
+//
+// OPENCV_OS_MAC_OS_X
+//
+
+#include <libkern/OSAtomic.h>
 
 cv::AtomicCounter::AtomicCounter() : counter_(0)
 {
@@ -105,11 +109,6 @@ cv::AtomicCounter& cv::AtomicCounter::operator = (cv::AtomicCounter::ValueType v
 {
     counter_ = value;
     return *this;
-}
-
-cv::AtomicCounter::operator cv::AtomicCounter::ValueType () const
-{
-    return counter_;
 }
 
 cv::AtomicCounter::ValueType cv::AtomicCounter::value() const
@@ -146,6 +145,10 @@ bool cv::AtomicCounter::operator ! () const
 
 #elif defined(OPENCV_HAVE_GCC_ATOMICS)
 
+//
+// OPENCV_HAVE_GCC_ATOMICS
+//
+
 cv::AtomicCounter::AtomicCounter() : counter_(0)
 {
 }
@@ -172,11 +175,6 @@ cv::AtomicCounter& cv::AtomicCounter::operator = (cv::AtomicCounter::ValueType v
 {
     __sync_lock_test_and_set(&counter_, value);
     return *this;
-}
-
-cv::AtomicCounter::operator cv::AtomicCounter::ValueType () const
-{
-    return counter_;
 }
 
 cv::AtomicCounter::ValueType cv::AtomicCounter::value() const
@@ -211,6 +209,10 @@ bool cv::AtomicCounter::operator ! () const
 
 #else
 
+//
+// General
+//
+
 cv::AtomicCounter::AtomicCounter()
 {
     counter_.value = 0;
@@ -242,16 +244,6 @@ cv::AtomicCounter& cv::AtomicCounter::operator = (cv::AtomicCounter::ValueType v
     Mutex::ScopedLock lock(counter_.mutex);
     counter_.value = value;
     return *this;
-}
-
-cv::AtomicCounter::operator cv::AtomicCounter::ValueType () const
-{
-    ValueType result;
-    {
-        Mutex::ScopedLock lock(counter_.mutex);
-        result = counter_.value;
-    }
-    return result;
 }
 
 cv::AtomicCounter::ValueType cv::AtomicCounter::value() const
@@ -314,4 +306,4 @@ bool cv::AtomicCounter::operator ! () const
     return result;
 }
 
-#endif // OPENCV_OS
+#endif

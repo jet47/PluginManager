@@ -24,17 +24,26 @@ namespace
 {
     class CudaModuleManager : public cv::PluginManagerBase
     {
+    public:
+        CudaModuleManager();
+
     protected:
         cv::AutoPtr<cv::RefCountedObject> createImpl(const std::string& interface, const cv::ParameterMap& params);
+
+    private:
+        cv::PluginManager* manager_;
     };
+
+    CudaModuleManager::CudaModuleManager()
+    {
+        manager_ = cv::thePluginManager();
+    }
 
     cv::AutoPtr<cv::RefCountedObject> CudaModuleManager::createImpl(const std::string& interface, const cv::ParameterMap& params)
     {
         const std::string fullName = "gpu.cuda." + interface;
 
-        cv::PluginManager& manager = cv::thePluginManager();
-
-        return manager.create<cv::RefCountedObject>(fullName, params);
+        return manager_->create<cv::RefCountedObject>(fullName, params);
     }
 }
 
@@ -66,9 +75,9 @@ namespace
 ///////////////////////////////////////////////////////////
 // ocvPluginCreate
 
-extern "C" OPENCV_PLUGIN_API cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params);
+extern "C" OPENCV_PLUGIN_API cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params, cv::PluginLogger* logger);
 
-cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params)
+cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params, cv::PluginLogger* /*logger*/)
 {
     assert(interface == "gpu.module" || interface == "gpu.cuda.basic");
 

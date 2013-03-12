@@ -171,24 +171,22 @@
     #error "Unknown Hardware Architecture."
 #endif
 
+//
+// GCC atomics
+//
+
 #if ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 2) || __GNUC__ > 4) && (defined(__x86_64__) || defined(__i386__))
-    #if !defined(OPENCV_HAVE_GCC_ATOMICS) && !defined(OPENCV_NO_GCC_ATOMICS)
-        #define OPENCV_HAVE_GCC_ATOMICS
-    #endif
+    #define OPENCV_HAVE_GCC_ATOMICS
 #elif ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3) || __GNUC__ > 4)
-    #if !defined(OPENCV_HAVE_GCC_ATOMICS) && !defined(OPENCV_NO_GCC_ATOMICS)
-        #define OPENCV_HAVE_GCC_ATOMICS
-    #endif
-#endif // OPENCV_OS
+    #define OPENCV_HAVE_GCC_ATOMICS
+#endif
 
 //
 // Thread-safety of local static initialization
 //
 
 #if __cplusplus >= 201103L || __GNUC__ >= 4 || defined(__clang__)
-    #ifndef OPENCV_LOCAL_STATIC_INIT_IS_THREADSAFE
-        #define OPENCV_LOCAL_STATIC_INIT_IS_THREADSAFE 1
-    #endif
+    #define OPENCV_LOCAL_STATIC_INIT_IS_THREADSAFE 1
 #endif
 
 #endif // __OPENCV_PLATFORM_H__

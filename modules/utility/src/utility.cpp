@@ -7,21 +7,27 @@ cv::RefCountedObject::RefCountedObject() : counter_(1)
 {
 }
 
-cv::RefCountedObject::~RefCountedObject()
-{
-}
-
-void cv::RefCountedObject::release() const
-{
-    if (--counter_ == 0) delete this;
-}
-
-void cv::RefCountedObject::duplicate() const
+void cv::RefCountedObject::duplicate()
 {
     ++counter_;
+}
+
+void cv::RefCountedObject::release()
+{
+    if (--counter_ == 0)
+        deleteImpl();
 }
 
 int cv::RefCountedObject::referenceCount() const
 {
     return counter_.value();
+}
+
+cv::RefCountedObject::~RefCountedObject()
+{
+}
+
+void cv::RefCountedObject::deleteImpl()
+{
+    delete this;
 }

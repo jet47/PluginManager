@@ -17,14 +17,14 @@ namespace cv
 
         Plugin(const PluginInfo& info, const std::string& libPath);
 
-        PluginInfo info() const;
-        std::string libPath() const;
+        const PluginInfo& info() const;
+        const std::string& libPath() const;
         bool isLoaded() const;
 
         void load();
         void unload();
 
-        AutoPtr<RefCountedObject> create(const std::string& interface, const ParameterMap& params);
+        AutoPtr<RefCountedObject> create(const std::string& interface, const ParameterMap& params, PluginLogger* logger);
 
     private:
         Plugin(const Plugin&);

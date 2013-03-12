@@ -9,19 +9,19 @@
 
 namespace cv
 {
-    OPENCV_EXPORT cv::PluginManagerBase& theGpuModule();
+    OPENCV_API PluginManagerBase* theGpuModule();
 
-    class OPENCV_EXPORT GpuBasic : public cv::RefCountedObject
+    class GpuBasic : public RefCountedObject
     {
     public:
         virtual void* malloc2D(size_t height, size_t width, size_t& step) = 0;
         virtual void free(void* ptr) = 0;
     };
 
-    class OPENCV_EXPORT GpuArithmBinary : public cv::Algorithm
+    class GpuArithmBinary : public Algorithm
     {
     public:
-        virtual void apply(const cv::GpuMat& src1, const cv::GpuMat& src2, cv::GpuMat& dst) = 0;
+        virtual void apply(const GpuMat& src1, const GpuMat& src2, GpuMat& dst) = 0;
     };
 }
 

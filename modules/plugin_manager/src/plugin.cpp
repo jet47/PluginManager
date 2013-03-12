@@ -2,17 +2,17 @@
 
 #include <sstream>
 
-cv::Plugin::Plugin(const PluginInfo& info, const std::string& libPath) :
+cv::Plugin::Plugin(const cv::PluginInfo& info, const std::string& libPath) :
     info_(info), libPath_(libPath)
 {
 }
 
-cv::PluginInfo cv::Plugin::info() const
+const cv::PluginInfo& cv::Plugin::info() const
 {
     return info_;
 }
 
-std::string cv::Plugin::libPath() const
+const std::string& cv::Plugin::libPath() const
 {
     return libPath_;
 }
@@ -55,16 +55,16 @@ void cv::Plugin::unload()
 
 namespace
 {
-    typedef cv::RefCountedObject* (*ocvCreatePlugin_t)(const std::string& interface, const cv::ParameterMap& params);
+    typedef cv::RefCountedObject* (*ocvCreatePlugin_t)(const std::string& interface, const cv::ParameterMap& params, cv::PluginLogger* logger);
 }
 
-cv::AutoPtr<cv::RefCountedObject> cv::Plugin::create(const std::string& interface, const cv::ParameterMap& params)
+cv::AutoPtr<cv::RefCountedObject> cv::Plugin::create(const std::string& interface, const cv::ParameterMap& params, cv::PluginLogger* logger)
 {
     load();
 
     const ocvCreatePlugin_t ocvCreatePlugin = (ocvCreatePlugin_t) lib_.getSymbol("ocvCreatePlugin");
 
-    cv::RefCountedObject* obj = ocvCreatePlugin(interface, params);
+    cv::RefCountedObject* obj = ocvCreatePlugin(interface, params, logger);
 
     if (obj)
         return cv::AutoPtr<cv::RefCountedObject>(obj);

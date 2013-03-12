@@ -7,8 +7,6 @@ option(BUILD_PLUGINS "Build plugins" OFF)
 set(bin_output_dir "${CMAKE_BINARY_DIR}/bin")
 set(lib_output_dir "${CMAKE_BINARY_DIR}/lib")
 
-add_definitions(-DPLUGIN_MANAGER_LIB)
-
 add_subdirectory(modules)
 add_subdirectory(app)
 add_subdirectory(sample)

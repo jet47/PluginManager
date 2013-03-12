@@ -46,18 +46,20 @@ namespace
 ///////////////////////////////////////////////////////////
 // ocvPluginCreate
 
-extern "C" OPENCV_PLUGIN_API cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params);
+extern "C" OPENCV_PLUGIN_API cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params, cv::PluginLogger* logger);
 
-cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params)
+cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params, cv::PluginLogger* logger)
 {
     assert(interface == "gpu.cuda.arithm");
 
     const std::string func = params.get<std::string>("func");
-    const cv::Depth depth = static_cast<cv::Depth>(params.get<int>("depth"));
+    const int depth = params.get<int>("depth");
     const int channels = params.get<int>("channels");
 
-    if (func == "add_mat" && depth == cv::d8U && channels == 3)
+    if (func == "add_mat" && depth == cv::CV_8U && channels == 3)
         return new NppAdd8UC3;
+
+    logger->message("Unsupported operation");
 
     return 0;
 }
