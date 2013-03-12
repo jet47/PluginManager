@@ -38,11 +38,6 @@ cv::AtomicCounter& cv::AtomicCounter::operator = (cv::AtomicCounter::ValueType v
     return *this;
 }
 
-cv::AtomicCounter::operator cv::AtomicCounter::ValueType () const
-{
-    return counter_;
-}
-
 cv::AtomicCounter::ValueType cv::AtomicCounter::value() const
 {
     return counter_;

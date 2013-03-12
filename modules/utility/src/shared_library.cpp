@@ -106,7 +106,7 @@ inline cv::SharedLibrary::Impl::Impl()
     handle_ = 0;
 }
 
-inline void cv::SharedLibrary::Impl::loadImpl(const std::string& path)
+inline bool cv::SharedLibrary::Impl::loadImpl(const std::string& path)
 {
     Mutex::ScopedLock lock(mutex_);
     handle_ = LoadLibraryExA(path.c_str(), 0, 0);
