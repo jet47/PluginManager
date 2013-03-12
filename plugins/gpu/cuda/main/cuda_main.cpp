@@ -77,12 +77,29 @@ namespace
 
 extern "C" OPENCV_PLUGIN_API cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params, cv::PluginLogger* logger);
 
-cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params, cv::PluginLogger* /*logger*/)
+cv::RefCountedObject* ocvCreatePlugin(const std::string& interface, const cv::ParameterMap& params, cv::PluginLogger* logger)
 {
     assert(interface == "gpu.module" || interface == "gpu.cuda.basic");
 
     if (interface == "gpu.module")
+    {
+        int count;
+        cudaError_t error = cudaGetDeviceCount( &count );
+
+        if (error == cudaErrorInsufficientDriver)
+        {
+            logger->message("Insufficient driver");
+            return 0;
+        }
+
+        if (error == cudaErrorNoDevice)
+        {
+            logger->message("No CUDA device");
+            return 0;
+        }
+
         return new CudaModuleManager;
+    }
 
     return new CudaBasic;
 }
