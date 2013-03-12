@@ -18,7 +18,7 @@ OPENCV_BEGIN_PLUGIN_DECLARATION("CUDA Main")
 OPENCV_END_PLUGIN_DECLARATION()
 
 ///////////////////////////////////////////////////////////
-// gpu
+// gpu.module
 
 namespace
 {
