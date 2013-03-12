@@ -351,6 +351,12 @@ namespace cv
         Impl* impl_;
     };
 
+    class OPENCV_API RegExpr
+    {
+    public:
+        static bool compare(const std::string& str, const std::string& pattern);
+    };
+
     class OPENCV_API Path
     {
     public:

@@ -187,6 +187,17 @@ namespace
     }
 }
 
+bool cv::RegExpr::compare(const std::string& str, const std::string& pattern)
+{
+    if (pattern.empty())
+        return false;
+
+    if (str.empty())
+        return false;
+
+    return wildcmp(str.c_str(), pattern.c_str());
+}
+
 void cv::Path::glob(const std::string& pattern, std::vector<std::string>& result, bool recursive)
 {
     result.clear();

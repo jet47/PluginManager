@@ -203,8 +203,7 @@ namespace
         {
             const PrioritySettings& s = prioritySettings_[i];
 
-            // TODO : regex
-            if (s.interfaceExpr == interface)
+            if (cv::RegExpr::compare(interface, s.interfaceExpr))
                 pluginCmp.priorityMap[s.pluginNameExpr] = s.priority;
         }
 
