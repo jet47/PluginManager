@@ -1,6 +1,7 @@
 #include "utility.hpp"
 
 #include <cstdlib>
+#include <sstream>
 #include <stdexcept>
 
 bool cv::Environment::has(const std::string& name)
@@ -15,7 +16,9 @@ std::string cv::Environment::get(const std::string& name)
     if (val)
         return std::string(val);
 
-    throw std::runtime_error("Not found");
+    std::ostringstream msg;
+    msg << "Can't find enviroment variable - " << name;
+    throw std::runtime_error(msg.str());
 }
 
 std::string cv::Environment::get(const std::string& name, const std::string& defaultValue)

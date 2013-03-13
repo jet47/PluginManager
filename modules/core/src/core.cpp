@@ -26,6 +26,7 @@ namespace
 
     GpuBasicHolder::GpuBasicHolder()
     {
+        cv::theGpuModule()->init();
         impl_ = cv::theGpuModule()->create<cv::GpuBasic>("basic");
     }
 

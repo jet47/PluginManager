@@ -206,17 +206,14 @@ void cv::Path::glob(const std::string& pattern, std::vector<std::string>& result
     if (isDir(pattern, 0))
     {
         if(std::strchr(dir_separators, pattern[pattern.size() - 1]) != 0)
-        {
             path = pattern.substr(0, pattern.size() - 1);
-        }
         else
-        {
             path = pattern;
-        }
     }
     else
     {
         size_t pos = pattern.find_last_of(dir_separators);
+
         if (pos == std::string::npos)
         {
             wildchart = pattern;

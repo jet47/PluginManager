@@ -7,6 +7,8 @@ namespace
     public:
         GpuModule();
 
+        void init();
+
     protected:
         cv::AutoPtr<cv::RefCountedObject> createImpl(const std::string& interface, const cv::ParameterMap& params);
 
@@ -17,6 +19,11 @@ namespace
     GpuModule::GpuModule()
     {
         impl_ = cv::thePluginManager()->create<cv::PluginManagerBase>("gpu.module");
+    }
+
+    void GpuModule::init()
+    {
+        impl_->init();
     }
 
     cv::AutoPtr<cv::RefCountedObject> GpuModule::createImpl(const std::string& interface, const cv::ParameterMap& params)

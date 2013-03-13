@@ -2,12 +2,27 @@
 #include <vector>
 
 #include "plugin_manager.hpp"
+#include "gpu_module.hpp"
 
 int main()
 {
     cv::PluginManager* manager = cv::thePluginManager();
-
     manager->setLogLevel(true);
+
+    manager->init();
+
+    if (manager->hasPlugin("gpu.module"))
+    {
+        try
+        {
+            // Load all gpu plugins
+            cv::PluginManagerBase* gpuModule = cv::theGpuModule();
+            gpuModule->init();
+        }
+        catch(...)
+        {
+        }
+    }
 
     std::vector<cv::AutoPtr<cv::PluginBase> > plugins;
     manager->getPluginList(plugins);

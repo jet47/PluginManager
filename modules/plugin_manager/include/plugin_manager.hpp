@@ -49,6 +49,8 @@ namespace cv
         template <class Base>
         AutoPtr<Base> create(const std::string& interface, const ParameterMap& params = ParameterMap());
 
+        virtual void init() = 0;
+
     protected:
         virtual AutoPtr<RefCountedObject> createImpl(const std::string& interface, const ParameterMap& params) = 0;
     };
@@ -63,10 +65,15 @@ namespace cv
     {
     public:
         virtual void addPlugin(const std::string& libPath) = 0;
-        virtual void addPluginDir(const std::string& dir, bool recursive = true) = 0;
+        virtual void addPluginDir(const std::string& dir, bool recursive) = 0;
 
         virtual void getPluginList(std::vector<AutoPtr<PluginBase> >& plugins) = 0;
 
+        enum
+        {
+            NEVER = -1,
+            ONLY = 0xffffffff
+        };
         virtual void setPriority(const std::string& interfaceExpr, const std::string& pluginNameExpr, int priority) = 0;
         virtual void clearPrioritySettings() = 0;
 

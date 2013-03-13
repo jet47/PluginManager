@@ -39,8 +39,10 @@ namespace
     public:
         PluginManagerImpl();
 
+        void init();
+
         void addPlugin(const std::string& libPath);
-        void addPluginDir(const std::string& dir, bool recursive = true);
+        void addPluginDir(const std::string& dir, bool recursive);
 
         void getPluginList(std::vector<cv::AutoPtr<cv::PluginBase> >& plugins);
 
@@ -75,6 +77,24 @@ namespace
     {
     }
 
+    void PluginManagerImpl::init()
+    {
+        if (allPlugins_.empty())
+        {
+            std::string pluginDir = cv::Environment::get("OPENCV_PLUGIN_DIR", ".");
+
+        #if defined(OPENCV_OS_FAMILY_WINDOWS)
+            #ifdef _DEBUG
+                pluginDir += "\\Debug";
+            #else
+                pluginDir += "\\Release";
+            #endif
+        #endif
+
+            addPluginDir(pluginDir, false);
+        }
+    }
+
     typedef void (*ocvGetPluginInfo_t)(cv::PluginInfo* info);
 
     void PluginManagerImpl::addPlugin(const std::string& libPath)
@@ -99,7 +119,25 @@ namespace
 
         lib.unload();
 
+        if (info.interfaces.empty())
+        {
+            std::ostringstream msg;
+            msg << libPath << " is not a correct OpenCV plugin";
+            throw std::runtime_error(msg.str());
+        }
+
         cv::Mutex::ScopedLock lock(mutex_);
+
+        // check if plugin already exists
+        const std::vector<cv::Plugin*>& plugins = pluginsMap_[info.interfaces[0]];
+
+        for (size_t i = 0; i < plugins.size(); ++i)
+        {
+            const cv::PluginInfo& pInfo = plugins[i]->info();
+
+            if (info.name == pInfo.name && info.vendor == pInfo.vendor && info.version == pInfo.version)
+                return;
+        }
 
         if (verbose_)
             std::cout << "OpenCV Plugin Manager : Add " << libPath << std::endl;
@@ -128,8 +166,7 @@ namespace
 
     void PluginManagerImpl::getPluginList(std::vector<cv::AutoPtr<cv::PluginBase> >& plugins)
     {
-        if (allPlugins_.empty())
-            addPluginDir(cv::Environment::get("OPENCV_PLUGIN_DIR", "."));
+        init();
 
         plugins.clear();
 
@@ -169,15 +206,14 @@ namespace
 
         bool operator ()(const cv::Plugin* pluginA, const cv::Plugin* pluginB) const
         {
-            // TODO : regexp
+            // TODO : regexp & version
             return priorityMap[pluginA->info().name] > priorityMap[pluginB->info().name];
         }
     };
 
     cv::AutoPtr<cv::RefCountedObject> PluginManagerImpl::createImpl(const std::string& interface, const cv::ParameterMap& params)
     {
-        if (allPlugins_.empty())
-            addPluginDir(cv::Environment::get("OPENCV_PLUGIN_DIR", "."));
+        init();
 
         if (verbose_)
             std::cout << "OpenCV Plugin Manager : Look for " << interface << std::endl;
@@ -213,7 +249,7 @@ namespace
         {
             cv::Plugin* plugin = plugins[i];
 
-            // TODO : regex
+            // TODO : regexp & version
             if (pluginCmp.priorityMap[plugin->info().name] < 0)
                 break;
 
@@ -246,6 +282,10 @@ namespace
 
             if (!wasLoaded)
                 plugin->unload();
+
+            // TODO : regexp & version
+            if (pluginCmp.priorityMap[plugin->info().name] == ONLY)
+                break;
         }
 
         std::ostringstream msg;
