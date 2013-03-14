@@ -69,15 +69,22 @@ namespace
 
         ostr << "npp";
 
-    #if (OPENCV_ARCH == OPENCV_ARCH_IA64 || OPENCV_ARCH == OPENCV_ARCH_AMD64)
-        ostr << "64";
-    #else
-        ostr << "32";
-    #endif
+    #if (OPENCV_OS_FAMILY_WINDOWS)
+        #if (OPENCV_ARCH == OPENCV_ARCH_IA64 || OPENCV_ARCH == OPENCV_ARCH_AMD64)
+            ostr << "64";
+        #else
+            ostr << "32";
+        #endif
 
         ostr << "_" << NPP_VERSION_MAJOR << NPP_VERSION_MINOR;
         ostr << "_" << NPP_VERSION_BUILD;
+    #endif
+
         ostr << cv::SharedLibrary::suffix();
+
+    #if defined(OPENCV_OS_FAMILY_UNIX)
+        ostr << "." << NPP_VERSION_MAJOR << "." << NPP_VERSION_MINOR;
+    #endif
 
         const std::string nppLibName = ostr.str();
 

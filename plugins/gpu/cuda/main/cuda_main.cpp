@@ -72,15 +72,22 @@ namespace
 
         ostr << "cudart";
 
-    #if (OPENCV_ARCH == OPENCV_ARCH_IA64 || OPENCV_ARCH == OPENCV_ARCH_AMD64)
-        ostr << "64";
-    #else
-        ostr << "32";
-    #endif
+    #if (OPENCV_OS_FAMILY_WINDOWS)
+        #if (OPENCV_ARCH == OPENCV_ARCH_IA64 || OPENCV_ARCH == OPENCV_ARCH_AMD64)
+            ostr << "64";
+        #else
+            ostr << "32";
+        #endif
 
         ostr << "_" << (CUDART_VERSION / 100);
         ostr << "_" << NPP_VERSION_BUILD;
+    #endif
+
         ostr << cv::SharedLibrary::suffix();
+
+    #if defined(OPENCV_OS_FAMILY_UNIX)
+        ostr << "." << (CUDART_VERSION / 1000) << "." << ((CUDART_VERSION % 100) / 10);
+    #endif
 
         const std::string cudaLibName = ostr.str();
 
