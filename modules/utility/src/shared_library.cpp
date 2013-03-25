@@ -109,7 +109,9 @@ inline cv::SharedLibrary::Impl::Impl()
 inline bool cv::SharedLibrary::Impl::loadImpl(const std::string& path)
 {
     Mutex::ScopedLock lock(mutex_);
+    UINT oldErrorMode = SetErrorMode(SEM_FAILCRITICALERRORS);
     handle_ = LoadLibraryExA(path.c_str(), 0, 0);
+    SetErrorMode(oldErrorMode);
     return handle_ != 0;
 }
 
