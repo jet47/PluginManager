@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.10)
 
-project(plugin_manager_test)
+project(PluginManager)
 
 option(BUILD_PLUGINS "Build plugins" OFF)
 
